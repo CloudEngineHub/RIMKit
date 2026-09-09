@@ -17,7 +17,7 @@ The robot registry contains sixteen bundled humanoid models.
 | Booster Robotics | T1 | `t1` | `booster/t1/t1.xml` | 30 | 23 |
 | Booster Robotics | T2 | `t2` | `booster/t2/t2.xml` | 38 | 31 |
 | ENGINEAI | PM01 | `pm01` | `engineai/pm01/xml/serial_pm_v2.xml` | 31 | 24 |
-| Asimov | Asimov-1 | `asimov1` | `asimov/asimov1/sim-model/xmls/asimov_1.xml` | 30 | 23 |
+| Menlo Research | Asimov-1 | `asimov1` | `asimov/asimov1/sim-model/xmls/asimov_1.xml` | 30 | 23 |
 | AgiBot | X2-Ultra | `x2` | `agibot/x2/X2_URDF-v1.4.0/X2-Ultra.xml` | 38 | 31 |
 | AgiBot | A3 T3.0 | `a3` | `agibot/a3/a3_t3d0/mjcf/a3.xml` | 38 | 31 |
 

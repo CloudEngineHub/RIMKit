@@ -171,7 +171,7 @@ def test_web_app_validates_submits_streams_and_downloads(tmp_path: Path) -> None
                     "dof": 31,
                 },
                 {"id": "pm01", "name": "PM01", "manufacturer": "ENGINEAI", "dof": 24},
-                {"id": "asimov1", "name": "Asimov-1", "manufacturer": "Asimov", "dof": 23},
+                {"id": "asimov1", "name": "Asimov-1", "manufacturer": "Menlo Research", "dof": 23},
                 {"id": "x2", "name": "X2-Ultra", "manufacturer": "AgiBot", "dof": 31},
                 {"id": "a3", "name": "A3 T3.0", "manufacturer": "AgiBot", "dof": 31},
             ]

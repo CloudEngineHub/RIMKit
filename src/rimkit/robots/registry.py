@@ -520,7 +520,7 @@ _ROBOTS = {
     "asimov1": RobotSpec(
         robot_id="asimov1",
         display_name="Asimov-1",
-        manufacturer="Asimov",
+        manufacturer="Menlo Research",
         model_relpath="robots/asimov/asimov1/sim-model/xmls/asimov_1.xml",
         scene_relpath="scenes/asimov1.xml",
         license_spdx="GPL-2.0-only AND CERN-OHL-S-2.0",

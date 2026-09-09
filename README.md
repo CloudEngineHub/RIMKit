@@ -18,7 +18,7 @@ humanoid robots. The current release provides the
 [**CoRe**](https://tmjeong1103.github.io/CoRe/) method for contact-aware
 retargeting and bundles sixteen targets
 from Unitree Robotics, ROBOTIS, Apptronik, LimX Dynamics, Fourier Intelligence,
-PNDbotics, Booster Robotics, ENGINEAI, Asimov, and AgiBot behind one Python and
+PNDbotics, Booster Robotics, ENGINEAI, Menlo Research, and AgiBot behind one Python and
 command-line interface, with robot-motion `.npz` and video export ready out of
 the box.
 
@@ -162,7 +162,7 @@ Generate results for the other bundled Kimodo and GEM-X motions with
 | 11 | Booster Robotics | T1 | `t1` |
 | 12 | Booster Robotics | T2 | `t2` |
 | 13 | ENGINEAI | PM01 | `pm01` |
-| 14 | Asimov | Asimov-1 | `asimov1` |
+| 14 | Menlo Research | Asimov-1 | `asimov1` |
 | 15 | AgiBot | X2-Ultra | `x2` |
 | 16 | AgiBot | A3 T3.0 | `a3` |
 | — | More manufacturers | **More humanoid robots coming soon** | — |

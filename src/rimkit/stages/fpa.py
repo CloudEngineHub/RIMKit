@@ -771,9 +771,9 @@ def build_fpa_targets(
             (right_target, right_segments),
             (left_target, left_segments),
         ):
-            for segment in segments:
-                if len(segment):
-                    values[segment, :2] = np.median(values[segment, :2], axis=0)
+            for hard_segment in segments:
+                if len(hard_segment):
+                    values[hard_segment, :2] = np.median(values[hard_segment, :2], axis=0)
 
     right_target, right_gain = splice_contact_target_velocity(
         right_target,

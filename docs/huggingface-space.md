@@ -7,8 +7,8 @@ The public deployment is available at
 [huggingface.co/spaces/robotaemoon/CoRe](https://huggingface.co/spaces/robotaemoon/CoRe).
 
 The target selector is populated from RIMKit's robot registry and exposes all
-sixteen bundled models: G1, H1, H2, R1, K1, Apollo, Oli, N1, GR3, ADAM Lite,
-T1, T2, PM01, Asimov-1, X2-Ultra, and A3 T3.0. The Docker Space therefore uses the same model
+seventeen bundled models: G1, H1, H2, R1, K1, Apollo, Oli, N1, GR3, ADAM Lite,
+T1, T2, PM01, Asimov-1, X2-Ultra, A3 T3.0, and IGRIS-C. The Docker Space therefore uses the same model
 assets and retargeting profiles as the local browser demo and CLI.
 
 The source-motion control includes two one-click examples: Kimodo

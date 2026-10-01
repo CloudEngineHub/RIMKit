@@ -55,7 +55,8 @@ nb::object copy_array(const std::vector<T>& values,std::initializer_list<size_t>
 }
 
 void sort_and_truncate(std::vector<SignedDistanceRecord>& records,int topk) {
-    std::sort(records.begin(),records.end(),record_dist_less);
+    // Preserve insertion order for equal distances, as Python's sorted does.
+    std::stable_sort(records.begin(),records.end(),record_dist_less);
     if (topk >= 0 && static_cast<size_t>(topk) < records.size()) {
         records.resize(static_cast<size_t>(topk));
     }
@@ -207,7 +208,7 @@ nb::dict signed_distance_arrays(
         pair_order[static_cast<size_t>(pair_idx)] = pair_idx;
     }
     if (topk >= 0) {
-        std::sort(
+        std::stable_sort(
             pair_order.begin(),
             pair_order.end(),
             [&](int a,int b) {

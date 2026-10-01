@@ -45,6 +45,14 @@ its hardware-derived mesh assets remain CERN-OHL-S-2.0.
 AgiBot X2-Ultra is derived from agibot_x2_urdf at revision
 77f43eb0904dae4c48ccd9154fee824f8ffd4d38 and remains MulanPSL-2.0.
 
+ROBROS IGRIS-C is retained from the validated serial research model associated
+with `robrosinc/igris_c_description_public`. The source checkout revision is
+`784616e20a273a7a460689c11b83fd728e53100c`; the research snapshot differs from
+that revision's newer v2 xacro. Exact packaged snapshot hashes and modifications
+are recorded under `assets/robots/robros`. The upstream `package.xml` declares
+BSD 3-clause and is retained verbatim as the license declaration; no standalone
+license text exists in the inspected revision.
+
 The added robot models contain RIMKit-local retargeting landmarks or scene
 integration changes. Their vendor-local SOURCE.yaml and FILES.sha256 files
 record the exact source, modifications, and packaged file hashes.

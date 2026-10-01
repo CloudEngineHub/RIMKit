@@ -61,6 +61,7 @@ _CAMERA_PRESETS = {
     "gr3": (2.85, 0.78),
     "a3": (3.00, 0.85),
     "t2": (2.65, 0.72),
+    "igrisc": (2.80, 0.72),
 }
 
 
@@ -110,7 +111,8 @@ def _validated_qpos(qpos: ArrayLike, *, spec: RobotSpec) -> FloatArray:
         raise PreviewRenderError("qpos must contain at least one frame")
     if not np.isfinite(trajectory).all():
         raise PreviewRenderError("qpos must contain only finite values")
-    return trajectory.copy(order="C")
+    result: NDArray[np.float64] = trajectory.copy(order="C")
+    return result
 
 
 def _validated_output_path(path: Path, *, suffix: str, field: str) -> Path:

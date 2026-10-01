@@ -139,6 +139,16 @@ T2_INITIAL_COLLISION_PROFILE = replace(
     root_body_name="waist_yaw_link",
     ancestor_skip_depth=3,
 )
+IGRISC_INITIAL_COLLISION_PROFILE = replace(
+    _BASE_INITIAL_COLLISION_PROFILE,
+    robot_id="igrisc",
+    qpos_dim=38,
+    root_body_name="Link_Waist_Pitch",
+    movable_body_prefixes=("Link_", "Left_Hand", "Right_Hand"),
+    initial_margin=0.02,
+    ticks_per_pass=12,
+    outer_passes=3,
+)
 
 INITIAL_COLLISION_PROFILES = MappingProxyType(
     {
@@ -160,6 +170,7 @@ INITIAL_COLLISION_PROFILES = MappingProxyType(
             GR3_INITIAL_COLLISION_PROFILE,
             A3_INITIAL_COLLISION_PROFILE,
             T2_INITIAL_COLLISION_PROFILE,
+            IGRISC_INITIAL_COLLISION_PROFILE,
         )
     }
 )
@@ -187,6 +198,7 @@ __all__ = [
     "H1_INITIAL_COLLISION_PROFILE",
     "H2_INITIAL_COLLISION_PROFILE",
     "INITIAL_COLLISION_PROFILES",
+    "IGRISC_INITIAL_COLLISION_PROFILE",
     "K1_INITIAL_COLLISION_PROFILE",
     "N1_INITIAL_COLLISION_PROFILE",
     "OLI_INITIAL_COLLISION_PROFILE",

@@ -36,11 +36,14 @@ class FpaProfile:
     temporal_seed_blend: float = 0.0
     temporal_nullspace_gain: float = 0.0
     contact_weight_ramp_time: float = 0.10
+    lock_hard_contact_targets: bool = False
+    toe_position_contact_weight: float = 8.0
     touchdown_preblend_time: float = 0.10
     touchdown_max_target_delta: float = 0.020
     toe_velocity_blend_time: float = 0.07
     toe_velocity_max_target_delta: float = 0.010
     toe_transition_max_step: float = 0.0
+    root_z_correction_max_step: float = 0.0
 
     use_profile_ankle_orientation: bool = False
     contact_ankle_orientation_weight: float = 0.0
@@ -48,6 +51,7 @@ class FpaProfile:
     joint_correction_median_window: int = 1
     joint_correction_smooth_time: float = 0.0
     joint_correction_max_delta: float = 0.0
+    joint_correction_contact_attenuation: float = 0.0
     swing_outlier_threshold: float = inf
     swing_outlier_max_adjustment: float = 0.0
     swing_outlier_contact_threshold: float = 0.5
@@ -102,11 +106,13 @@ class FpaProfile:
             "temporal_seed_blend",
             "temporal_nullspace_gain",
             "contact_weight_ramp_time",
+            "toe_position_contact_weight",
             "touchdown_preblend_time",
             "touchdown_max_target_delta",
             "toe_velocity_blend_time",
             "toe_velocity_max_target_delta",
             "toe_transition_max_step",
+            "root_z_correction_max_step",
             "contact_ankle_orientation_weight",
             "joint_correction_smooth_time",
             "joint_correction_max_delta",
@@ -131,6 +137,8 @@ class FpaProfile:
             raise ValueError("swing_outlier_threshold must be non-negative or infinity")
         if not 0.0 <= self.swing_outlier_contact_threshold <= 1.0:
             raise ValueError("swing_outlier_contact_threshold must lie in [0, 1]")
+        if not 0.0 <= self.joint_correction_contact_attenuation <= 1.0:
+            raise ValueError("joint_correction_contact_attenuation must lie in [0, 1]")
         if self.joint_correction_median_window < 1:
             raise ValueError("joint_correction_median_window must be positive")
         if self.post_ground_recovery_passes < 0:
@@ -221,6 +229,14 @@ FPA_PROFILES = MappingProxyType(
         "gr3": replace(_G1, robot_id="gr3"),
         "a3": replace(_G1, robot_id="a3"),
         "t2": replace(_G1, robot_id="t2"),
+        "igrisc": FpaProfile(
+            robot_id="igrisc",
+            left_joint_tokens=("_Left",),
+            right_joint_tokens=("_Right",),
+            excluded_joint_tokens=("waist",),
+            use_profile_ankle_orientation=True,
+            contact_ankle_orientation_weight=0.15,
+        ),
     }
 )
 
@@ -247,6 +263,12 @@ def get_fpa_profile(
         profile,
         sole_clearance_quantile=0.05,
         toe_transition_max_step=0.02,
+        lock_hard_contact_targets=key == "igrisc",
+        toe_position_contact_weight=2.0 if key == "igrisc" else profile.toe_position_contact_weight,
+        root_z_correction_max_step=0.02 if key == "igrisc" else profile.root_z_correction_max_step,
+        joint_correction_contact_attenuation=(
+            0.75 if key == "igrisc" else profile.joint_correction_contact_attenuation
+        ),
     )
     if key == "k1":
         return profile

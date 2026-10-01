@@ -33,6 +33,7 @@ EXAMPLE = REPOSITORY / "examples" / "motions" / "kimodo" / "soma_rp_v11" / "stan
         ("GR3", "gr3"),
         ("A3", "a3"),
         ("T2", "t2"),
+        ("IGRISC", "igrisc"),
     ),
 )
 def test_retargeter_run_dmr_loads_motion_and_forwards_selected_robot(

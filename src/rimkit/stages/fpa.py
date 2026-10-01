@@ -485,8 +485,12 @@ def _yaw(rotation: FloatArray) -> float:
     return float(np.arctan2(rotation[1, 0], rotation[0, 0]))
 
 
-def _mid_hip(model: MujocoModel, profile_robot_id: str) -> FloatArray:
+def _root_landmark(model: MujocoModel, profile_robot_id: str) -> FloatArray:
     profile = get_dmr_profile(profile_robot_id)
+    if profile.trajectory_base_reference == "body_origin":
+        return np.asarray(
+            model.get_body_transform(profile.joi_bodies["base"])[:3, 3], dtype=np.float64
+        )
     right = model.get_body_transform(profile.joi_bodies["rp"])[:3, 3]
     left = model.get_body_transform(profile.joi_bodies["lp"])[:3, 3]
     return np.asarray(0.5 * (right + left), dtype=np.float64)
@@ -556,7 +560,7 @@ def _blend_soft_xy(
     hard_label: NDArray[np.bool_],
     confidence: FloatArray,
 ) -> FloatArray:
-    output = target.copy()
+    output: FloatArray = target.copy()
     hard_ticks = np.flatnonzero(hard_label)
     if len(hard_ticks) == 0:
         return output
@@ -600,7 +604,8 @@ def _validate_stage6(
         raise ValueError("FPA fps does not match target trajectories")
     if not np.isfinite(qpos).all():
         raise ValueError("qpos_stage3 contains NaN or infinity")
-    return qpos.copy(order="C")
+    result: FloatArray = qpos.copy(order="C")
+    return result
 
 
 def build_fpa_targets(
@@ -638,7 +643,7 @@ def build_fpa_targets(
     for tick in range(frame_count):
         model.forward(qpos_input[tick])
         pose = model.get_qpos()
-        pose[:3] += np.asarray(ara.root_ara[tick]) - _mid_hip(model, robot_id)
+        pose[:3] += np.asarray(ara.root_ara[tick]) - _root_landmark(model, robot_id)
         model.forward(pose)
         qpos_ara[tick] = model.get_qpos()
         right_foot_transform = model.get_body_transform(right_foot_name)
@@ -654,14 +659,14 @@ def build_fpa_targets(
         model,
         qpos_ara,
         toe_body_name=right_toe_name,
-        foot_body_name=right_foot_name,
+        foot_body_name=dmr_profile.right_foot_geometry_body_name or right_foot_name,
         ground_clearance=profile.sole_ground_clearance,
     )
     left_target_z_raw, _ = pose_dependent_toe_target_z(
         model,
         qpos_ara,
         toe_body_name=left_toe_name,
-        foot_body_name=left_foot_name,
+        foot_body_name=dmr_profile.left_foot_geometry_body_name or left_foot_name,
         ground_clearance=profile.sole_ground_clearance,
     )
     floor_z = float(ara.toe_floor_target_z)
@@ -739,6 +744,10 @@ def build_fpa_targets(
     )
     right_weight = np.clip(contacts.right_confidence, 0.0, 1.0)
     left_weight = np.clip(contacts.left_confidence, 0.0, 1.0)
+    if profile.lock_hard_contact_targets:
+        # Merged hard-contact segments can contain a confidence-ramp frame.
+        right_weight = np.where(contacts.right_contact_label, 1.0, right_weight)
+        left_weight = np.where(contacts.left_contact_label, 1.0, left_weight)
     right_ara = np.asarray(ara.right_toe_ara)
     left_ara = np.asarray(ara.left_toe_ara)
     for tick in range(frame_count):
@@ -754,6 +763,17 @@ def build_fpa_targets(
             ] * left_target_z[tick]
             left_reference[tick, 2] = value
             left_target[tick, 2] = value
+
+    if profile.lock_hard_contact_targets:
+        for values, segments in (
+            (right_reference, right_segments),
+            (left_reference, left_segments),
+            (right_target, right_segments),
+            (left_target, left_segments),
+        ):
+            for segment in segments:
+                if len(segment):
+                    values[segment, :2] = np.median(values[segment, :2], axis=0)
 
     right_target, right_gain = splice_contact_target_velocity(
         right_target,
@@ -838,6 +858,8 @@ class _FpaBodies:
     left_foot: str
     right_knee: str
     left_knee: str
+    right_foot_geometry: str | None = None
+    left_foot_geometry: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -908,7 +930,8 @@ def _has_side_token(name: str, tokens: tuple[str, ...]) -> bool:
 
 
 def _fpa_bodies(robot_id: str) -> _FpaBodies:
-    mapping = get_dmr_profile(robot_id).joi_bodies
+    profile = get_dmr_profile(robot_id)
+    mapping = profile.joi_bodies
     return _FpaBodies(
         right_toe=mapping["rt"],
         left_toe=mapping["lt"],
@@ -916,6 +939,8 @@ def _fpa_bodies(robot_id: str) -> _FpaBodies:
         left_foot=mapping["lf"],
         right_knee=mapping["rk"],
         left_knee=mapping["lk"],
+        right_foot_geometry=profile.right_foot_geometry_body_name,
+        left_foot_geometry=profile.left_foot_geometry_body_name,
     )
 
 
@@ -1036,13 +1061,13 @@ def _add_primary_targets(
         bodies.right_toe,
         right_toe_transform[:3, 3],
         targets.right_toe[tick],
-        1.0 + 7.0 * right_weight,
+        1.0 + (profile.toe_position_contact_weight - 1.0) * right_weight,
     )
     solver.add_target(
         bodies.left_toe,
         left_toe_transform[:3, 3],
         targets.left_toe[tick],
-        1.0 + 7.0 * left_weight,
+        1.0 + (profile.toe_position_contact_weight - 1.0) * left_weight,
     )
     solver.add_target(
         bodies.right_foot,
@@ -1129,6 +1154,9 @@ def _run_primary_ik(
     left_contact = np.clip(np.asarray(contacts.left_confidence, dtype=np.float64), 0.0, 1.0)
     right_control = np.clip(np.maximum(right_contact, targets.right_transition_gain), 0.0, 1.0)
     left_control = np.clip(np.maximum(left_contact, targets.left_transition_gain), 0.0, 1.0)
+    if profile.lock_hard_contact_targets:
+        right_control = np.where(contacts.right_contact_label, 1.0, right_control)
+        left_control = np.where(contacts.left_contact_label, 1.0, left_control)
     for tick in range(frame_count):
         model.forward(targets.qpos_ara[tick])
         _add_primary_targets(
@@ -1190,6 +1218,8 @@ def _smooth_joint_correction(
     right_contact: FloatArray,
     left_contact: FloatArray,
     dt: float,
+    right_control: FloatArray,
+    left_control: FloatArray,
 ) -> tuple[FloatArray, FloatArray]:
     indices = groups.recovery_indices
     raw = qpos[:, indices] - qpos_ara[:, indices]
@@ -1232,6 +1262,16 @@ def _smooth_joint_correction(
             profile.swing_outlier_max_adjustment,
         )
         adjustment = np.where(outlier, outlier_adjustment, adjustment)
+    if profile.joint_correction_contact_attenuation > 0.0:
+        for column, joint_name in enumerate(groups.recovery):
+            if joint_name in groups.left_recovery:
+                adjustment[:, column] *= (
+                    1.0 - profile.joint_correction_contact_attenuation * left_control
+                )
+            elif joint_name in groups.right_recovery:
+                adjustment[:, column] *= (
+                    1.0 - profile.joint_correction_contact_attenuation * right_control
+                )
     smooth = raw + adjustment
     qpos[:, indices] = qpos_ara[:, indices] + smooth
     return raw, smooth
@@ -1244,6 +1284,7 @@ def _apply_root_z_correction(
     targets: FpaTargetsResult,
     right_control: FloatArray,
     left_control: FloatArray,
+    max_step: float = 0.0,
 ) -> FloatArray:
     samples = np.full(len(qpos), np.nan, dtype=np.float64)
     for tick in range(len(qpos)):
@@ -1273,6 +1314,20 @@ def _apply_root_z_correction(
             ticks.astype(np.float64),
             samples[ticks],
         )
+        if max_step > 0.0:
+            for _ in range(2):
+                for tick in range(1, len(correction)):
+                    correction[tick] = np.clip(
+                        correction[tick],
+                        correction[tick - 1] - max_step,
+                        correction[tick - 1] + max_step,
+                    )
+                for tick in range(len(correction) - 2, -1, -1):
+                    correction[tick] = np.clip(
+                        correction[tick],
+                        correction[tick + 1] - max_step,
+                        correction[tick + 1] + max_step,
+                    )
         qpos[:, 2] -= correction
     return correction
 
@@ -1444,6 +1499,7 @@ def _add_recovery_targets(
     tick: int,
     right_weight: float,
     left_weight: float,
+    profile: FpaProfile,
 ) -> None:
     right_toe_transform = model.get_body_transform(bodies.right_toe)
     left_toe_transform = model.get_body_transform(bodies.left_toe)
@@ -1454,13 +1510,13 @@ def _add_recovery_targets(
         bodies.right_toe,
         right_toe_transform[:3, 3],
         references["right_toe"][tick],
-        1.0 + 7.0 * right_weight,
+        1.0 + (profile.toe_position_contact_weight - 1.0) * right_weight,
     )
     solver.add_target(
         bodies.left_toe,
         left_toe_transform[:3, 3],
         references["left_toe"][tick],
-        1.0 + 7.0 * left_weight,
+        1.0 + (profile.toe_position_contact_weight - 1.0) * left_weight,
     )
     solver.add_target(
         bodies.right_foot,
@@ -1524,6 +1580,8 @@ def _run_base_recovery(
         primary.right_contact_weight,
         primary.left_contact_weight,
         dt,
+        primary.right_control_weight,
+        primary.left_control_weight,
     )
     root_z = _apply_root_z_correction(
         model,
@@ -1532,6 +1590,7 @@ def _run_base_recovery(
         targets,
         primary.right_control_weight,
         primary.left_control_weight,
+        max_step=profile.root_z_correction_max_step,
     )
     before_smoothing = qpos.copy()
     references = _extract_recovery_references(model, bodies, before_smoothing)
@@ -1570,6 +1629,7 @@ def _run_base_recovery(
                 tick,
                 float(primary.right_contact_weight[tick]),
                 float(primary.left_contact_weight[tick]),
+                profile,
             )
             result = solver.solve(
                 joints=groups.recovery,
@@ -1615,8 +1675,12 @@ def _ground_distances(
     qpos: FloatArray,
 ) -> tuple[FloatArray, FloatArray]:
     return (
-        foot_ground_signed_distance(model, qpos, foot_body_name=bodies.right_foot),
-        foot_ground_signed_distance(model, qpos, foot_body_name=bodies.left_foot),
+        foot_ground_signed_distance(
+            model, qpos, foot_body_name=bodies.right_foot_geometry or bodies.right_foot
+        ),
+        foot_ground_signed_distance(
+            model, qpos, foot_body_name=bodies.left_foot_geometry or bodies.left_foot
+        ),
     )
 
 

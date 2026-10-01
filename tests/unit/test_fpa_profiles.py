@@ -32,6 +32,7 @@ def test_fpa_registry_covers_all_supported_robots_and_is_immutable() -> None:
         "gr3",
         "a3",
         "t2",
+        "igrisc",
     )
     with pytest.raises(TypeError):
         FPA_PROFILES["other"] = FpaProfile(robot_id="other")  # type: ignore[index]

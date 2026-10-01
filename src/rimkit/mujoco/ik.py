@@ -84,7 +84,7 @@ class _PointTarget:
 def _trim_scale(values: FloatArray, threshold: float) -> FloatArray:
     """Scale a vector so its largest absolute component is at most a threshold."""
 
-    result = values.copy()
+    result: FloatArray = values.copy()
     if result.size == 0:
         return result
     maximum = float(np.max(np.abs(result)))
@@ -214,7 +214,7 @@ def _solve_dls_reference(
 
 
 def _mask_task_irrelevant(jacobian: FloatArray, delta: FloatArray) -> FloatArray:
-    result = delta.copy()
+    result: FloatArray = delta.copy()
     if jacobian.shape[0] == 0 or jacobian.shape[1] == 0:
         return np.zeros_like(result)
     norms = np.linalg.norm(jacobian, axis=0)
@@ -230,7 +230,7 @@ def _mask_task_irrelevant_reference(
     """Apply the native task-column mask using its scalar accumulation order."""
 
     rows, columns = jacobian.shape
-    result = delta.copy()
+    result: FloatArray = delta.copy()
     column_norms = np.zeros(columns, dtype=np.float64)
     for column in range(columns):
         squared = 0.0
@@ -257,7 +257,8 @@ def _project_nullspace(
         return np.zeros_like(delta)
     scale = float(np.max(np.abs(jacobian)))
     if not np.isfinite(scale) or scale < 1e-12:
-        return delta.copy()
+        unchanged: FloatArray = delta.copy()
+        return unchanged
     scaled_jacobian = jacobian / scale
     scaled_damping = np.maximum(damping / (scale * scale), 1e-12)
     try:
@@ -291,7 +292,8 @@ def _project_nullspace_reference(
     for value in jacobian.reshape(-1):
         scale = max(scale, abs(float(value)))
     if not math.isfinite(scale) or scale < 1e-12:
-        return delta.copy()
+        unchanged: FloatArray = delta.copy()
+        return unchanged
     inverse_scale = 1.0 / scale
     hessian = np.zeros((columns, columns), dtype=np.float64)
     rhs = np.zeros(columns, dtype=np.float64)

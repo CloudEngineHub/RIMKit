@@ -227,3 +227,13 @@ in `src/rimkit/assets/soma/SOURCE.yaml`.
 
 All manufacturer and product names are used only to identify compatible model
 assets. No endorsement or affiliation is implied.
+
+## ROBROS IGRIS-C robot description
+
+ROBROS IGRIS-C is retained from the validated serial research model associated
+with `robrosinc/igris_c_description_public`. The source checkout revision is
+`784616e20a273a7a460689c11b83fd728e53100c`; the research snapshot differs from
+that revision's newer v2 xacro. Exact packaged snapshot hashes and modifications
+are recorded under `assets/robots/robros`. The upstream `package.xml` declares
+BSD 3-clause and is retained verbatim as the license declaration; no standalone
+license text exists in the inspected revision.

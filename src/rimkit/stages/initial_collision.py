@@ -334,7 +334,7 @@ def _smooth_arm_joints(
     joint_names: tuple[str, ...],
     profile: InitialCollisionProfile,
 ) -> FloatArray:
-    smoothed = qpos.copy(order="C")
+    smoothed: FloatArray = qpos.copy(order="C")
     qpos_indices = model.get_qpos_indices(joint_names)
     for joint_name, qpos_index_value in zip(joint_names, qpos_indices, strict=True):
         qpos_index = int(qpos_index_value)

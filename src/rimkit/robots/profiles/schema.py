@@ -184,6 +184,13 @@ class DmrProfile:
     # hard-coding robot-specific offsets in the DMR engine.
     joi_anchor_reference_keys: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
 
+    # Stage 4 uses the hip midpoint by default. Pelvis-root models can
+    # retain a fixed base landmark independent of articulated hip motion.
+    trajectory_base_reference: str = "midhip"
+    # Position landmarks may be massless aux bodies without collision geoms.
+    left_foot_geometry_body_name: str | None = None
+    right_foot_geometry_body_name: str | None = None
+
     # Joint groups are resolved from MuJoCo joint-name tokens.  G1 and H2 keep
     # their yaw waist joint in the primary solve while assigning roll/pitch to
     # the fixed-base torso pass.
@@ -359,6 +366,12 @@ class DmrProfile:
 
         if self.link_length_base_reference not in {"body_origin", "legacy_midhip"}:
             raise ValueError("link_length_base_reference must be 'body_origin' or 'legacy_midhip'.")
+        if self.trajectory_base_reference not in {"midhip", "body_origin"}:
+            raise ValueError("trajectory_base_reference must be 'midhip' or 'body_origin'.")
+        for field_name in ("left_foot_geometry_body_name", "right_foot_geometry_body_name"):
+            value = getattr(self, field_name)
+            if value is not None and not value.strip():
+                raise ValueError(f"{field_name} must not be empty.")
         if self.pelvis_orientation_reference_mode not in {
             "source_absolute",
             "robot_neutral_delta",

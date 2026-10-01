@@ -36,6 +36,7 @@ class DmrProfileTest(unittest.TestCase):
             "gr3",
             "a3",
             "t2",
+            "igrisc",
         )
         self.assertEqual(tuple(DMR_PROFILES), expected)
         for robot_id in expected:

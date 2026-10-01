@@ -103,7 +103,7 @@ def test_oli_export_expands_passive_ball_joint_quaternions() -> None:
     )
 
 
-@pytest.mark.parametrize("robot_id", ("t1", "t2"))
+@pytest.mark.parametrize("robot_id", ("t1", "t2", "igrisc"))
 def test_pelvis_root_models_export_the_original_vendor_joint_order(robot_id: str) -> None:
     robot = get_robot(robot_id)
     model = MujocoModel.from_robot(robot_id)

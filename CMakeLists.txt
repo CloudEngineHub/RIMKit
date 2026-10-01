@@ -72,6 +72,8 @@ target_compile_options(
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-O2>
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-fno-strict-aliasing>
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-fno-fast-math>
+    # Match the reference solver's separate multiply/add rounding on all CPUs.
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-ffp-contract=off>
 )
 target_compile_definitions(
   _core_native

@@ -89,7 +89,8 @@ def _validate_qpos(
         )
     if not np.isfinite(qpos).all():
         raise MotionValidationError(f"Stage 9 {name} qpos contains NaN or infinity.")
-    return qpos.copy(order="C")
+    result: FloatArray = qpos.copy(order="C")
+    return result
 
 
 def run_diagnostic_trajectories(

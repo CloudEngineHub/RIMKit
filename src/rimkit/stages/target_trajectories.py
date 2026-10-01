@@ -1,8 +1,8 @@
 """Robot-space target extraction after the first collision pass.
 
 The stage uses forward kinematics to convert raw DMR and Stage 3 trajectories
-into root, ankle, and toe world-position trajectories. The root landmark is
-the midpoint of the two hip landmarks when ``base_between_hips=True``.
+into root, ankle, and toe world-position trajectories. Profiles select the
+hip midpoint or a fixed base body origin for the root landmark.
 """
 
 from __future__ import annotations
@@ -155,7 +155,11 @@ def _landmarks(
         key: model.get_body_transform(profile.joi_bodies[key])[:3, 3]
         for key in ("rp", "lp", "ra", "la", "rt", "lt")
     }
-    root = 0.5 * (positions["rp"] + positions["lp"])
+    root = (
+        model.get_body_transform(profile.joi_bodies["base"])[:3, 3]
+        if profile.trajectory_base_reference == "body_origin"
+        else 0.5 * (positions["rp"] + positions["lp"])
+    )
     return (
         np.asarray(root, dtype=np.float64),
         np.asarray(positions["ra"], dtype=np.float64),

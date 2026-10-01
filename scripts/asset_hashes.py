@@ -20,6 +20,7 @@ VENDORS = (
     "engineai",
     "asimov",
     "agibot",
+    "robros",
 )
 
 

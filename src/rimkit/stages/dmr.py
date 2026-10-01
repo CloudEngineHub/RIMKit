@@ -323,10 +323,10 @@ def _slew_limited_confidence(
     transition_time: float,
 ) -> NDArray[np.float64]:
     clipped = np.clip(np.asarray(values, dtype=np.float64), 0.0, 1.0)
+    output: NDArray[np.float64] = clipped.copy()
     if len(clipped) <= 1 or float(transition_time) <= 0.0:
-        return clipped.copy()
+        return output
     max_step = min(1.0, max(float(dt), 1e-12) / max(float(transition_time), 1e-12))
-    output = clipped.copy()
     for tick in range(1, len(output)):
         output[tick] = np.clip(
             output[tick], output[tick - 1] - max_step, output[tick - 1] + max_step
@@ -523,7 +523,8 @@ def _smooth_rotation_sequence(
 ) -> NDArray[np.float64]:
     values = np.asarray(rotations, dtype=np.float64)
     if len(values) <= 1 or smooth_time <= 0.0:
-        return values.copy()
+        unchanged: NDArray[np.float64] = values.copy()
+        return unchanged
     sigma = max(float(smooth_time) / max(float(dt), 1e-12), 1e-6)
     if mode == "rotvec_legacy":
         reference = values[0]
@@ -670,7 +671,7 @@ def _flatten_contact_rotations(
     smooth_time: float,
     dt: float,
 ) -> NDArray[np.float64]:
-    output = np.asarray(rotations, dtype=np.float64).copy()
+    output: NDArray[np.float64] = np.asarray(rotations, dtype=np.float64).copy()
     if contact_confidence is None or strength <= 0.0:
         return output
     confidence: NDArray[np.float64] = np.asarray(contact_confidence, dtype=np.float64).reshape(-1)
@@ -1238,16 +1239,17 @@ def run_dmr(
 
     qpos = np.empty((frame_count, model.model.nq), dtype=np.float32)
     for tick, source_frame in enumerate(source):
-        if tick == 0 and profile.dmr_initial_nullspace_gain > 0.0:
-            body_solver.configure_nullspace(
-                home=model.get_qpos(model.rev_pri_joint_names),
-                gain=profile.dmr_initial_nullspace_gain,
-            )
-        elif tick > 0 and profile.dmr_temporal_nullspace_gain > 0.0:
-            body_solver.configure_nullspace(
-                home=model.get_qpos(model.rev_pri_joint_names),
-                gain=profile.dmr_temporal_nullspace_gain,
-            )
+        # Solver configuration survives target resets. Explicitly apply a
+        # zero temporal gain too, so frame-zero neutral guidance cannot leak
+        # into subsequent frames (notably GEM-X IGRIS).
+        body_solver.configure_nullspace(
+            home=model.get_qpos(model.rev_pri_joint_names),
+            gain=(
+                profile.dmr_initial_nullspace_gain
+                if tick == 0
+                else profile.dmr_temporal_nullspace_gain
+            ),
+        )
 
         if primary_pelvis_orientation and pelvis_heading_reference is not None:
             source_relative_heading, _ = _heading_rotation_and_tilt(base_relative_smooth[tick])

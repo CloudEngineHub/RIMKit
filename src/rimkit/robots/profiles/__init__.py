@@ -15,6 +15,7 @@ from rimkit.robots.profiles.g1 import G1_DMR_PROFILE
 from rimkit.robots.profiles.gr3 import GR3_DMR_PROFILE
 from rimkit.robots.profiles.h1 import H1_DMR_PROFILE
 from rimkit.robots.profiles.h2 import H2_DMR_PROFILE
+from rimkit.robots.profiles.igrisc import IGRISC_DMR_PROFILE
 from rimkit.robots.profiles.initial_collision import (
     A3_INITIAL_COLLISION_PROFILE,
     ADAM_INITIAL_COLLISION_PROFILE,
@@ -24,6 +25,7 @@ from rimkit.robots.profiles.initial_collision import (
     GR3_INITIAL_COLLISION_PROFILE,
     H1_INITIAL_COLLISION_PROFILE,
     H2_INITIAL_COLLISION_PROFILE,
+    IGRISC_INITIAL_COLLISION_PROFILE,
     INITIAL_COLLISION_PROFILES,
     K1_INITIAL_COLLISION_PROFILE,
     N1_INITIAL_COLLISION_PROFILE,
@@ -74,6 +76,8 @@ __all__ = [
     "H2_DMR_PROFILE",
     "H2_INITIAL_COLLISION_PROFILE",
     "INITIAL_COLLISION_PROFILES",
+    "IGRISC_DMR_PROFILE",
+    "IGRISC_INITIAL_COLLISION_PROFILE",
     "IkSolverProfile",
     "InitialCollisionProfile",
     "K1_DMR_PROFILE",

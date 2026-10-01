@@ -1,0 +1,20 @@
+schema_version: 1
+vendor: ROBROS
+repository: https://github.com/robrosinc/igris_c_description_public
+revision: 784616e20a273a7a460689c11b83fd728e53100c
+revision_ref: local-upstream-checkout
+license: BSD-3-Clause
+license_file: package.xml
+upstream_notice: null
+file_manifest: FILES.sha256
+
+models:
+  - id: igrisc
+    upstream_entrypoint: mujoco/igris_c_v2.xml.xacro
+    local_entrypoint: igrisc/igris_c_retarget.xml
+    modifications:
+      summary: Retained validated serial research snapshot; re-rooted at Link_Waist_Pitch and added aligned position landmarks with physical ankle-pivot rotation targets.
+      research_source_entrypoint: asset/igris_c_description_public/igris_c.xml
+      research_source_sha256: 11380820b7f95c3bb316ccdc8d3380020e2df0e6e14dfc444e5dbafec3cfdd4b
+      local_sha256: c5466eb8c49b5781461b7dcbadb26cc4b7881ed3fe4028fb0fc7012ac8b10f7f
+      details_file: MODIFICATIONS.md

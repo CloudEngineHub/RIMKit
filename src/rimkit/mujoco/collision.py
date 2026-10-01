@@ -23,13 +23,13 @@ IntArray = NDArray[np.int32]
 
 
 def _readonly_float(value: Any, shape: tuple[int, ...]) -> FloatArray:
-    result = np.asarray(value, dtype=np.float64).reshape(shape).copy(order="C")
+    result: FloatArray = np.asarray(value, dtype=np.float64).reshape(shape).copy(order="C")
     result.setflags(write=False)
     return result
 
 
 def _readonly_int(value: Any, shape: tuple[int, ...]) -> IntArray:
-    result = np.asarray(value, dtype=np.int32).reshape(shape).copy(order="C")
+    result: IntArray = np.asarray(value, dtype=np.int32).reshape(shape).copy(order="C")
     result.setflags(write=False)
     return result
 

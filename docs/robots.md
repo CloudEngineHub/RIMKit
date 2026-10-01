@@ -1,6 +1,6 @@
 # Supported robots
 
-The robot registry contains sixteen bundled humanoid models.
+The robot registry contains seventeen bundled humanoid models.
 
 | Manufacturer | Robot | ID | Entry XML | `nq` | Actuated DOF |
 |---|---|---|---|---:|---:|
@@ -20,6 +20,7 @@ The robot registry contains sixteen bundled humanoid models.
 | Menlo Research | Asimov-1 | `asimov1` | `asimov/asimov1/sim-model/xmls/asimov_1.xml` | 30 | 23 |
 | AgiBot | X2-Ultra | `x2` | `agibot/x2/X2_URDF-v1.4.0/X2-Ultra.xml` | 38 | 31 |
 | AgiBot | A3 T3.0 | `a3` | `agibot/a3/a3_t3d0/mjcf/a3.xml` | 38 | 31 |
+| ROBROS | IGRIS-C | `igrisc` | `robros/igrisc/igris_c_retarget.xml` | 38 | 31 |
 
 List the registry from an installed package:
 
@@ -35,7 +36,7 @@ paths, dimensions, scene wrappers, and output joint layouts.
 Some vendor models contain passive or compatibility joints that remain in
 MuJoCo `qpos` but are not actuated. Asimov-1 and GR3 distribute no MuJoCo
 actuators, so their listed DOF is the number of non-floating articulated
-dimensions. T1 and T2 use pelvis-root retargeting models internally but export
+dimensions. T1, T2, and IGRIS-C use pelvis-root retargeting models internally but export
 their articulated qpos columns in the original vendor XML order. Consumers
 should use the named layout stored in each
 `core-robot-motion-v1` output instead of assuming that `qpos` columns equal the
@@ -44,3 +45,9 @@ actuator list.
 Robot model licenses, upstream revisions, and RIMKit-local scene integration
 changes are documented in [licenses.md](licenses.md) and in each vendor asset
 directory's `SOURCE.yaml`.
+
+IGRIS-C follows the validated Kimodo/GEM-X v3 research settings. Its fixed
+base landmark is `Link_Waist_Pitch_aux`; it does not follow the articulated
+hip midpoint. Aligned aux bodies provide limb position targets, physical
+ankle-roll bodies provide rotation targets, and physical foot geometry
+provides ground distances.

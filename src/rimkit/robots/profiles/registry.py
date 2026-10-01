@@ -15,6 +15,7 @@ from rimkit.robots.profiles.g1 import G1_DMR_PROFILE
 from rimkit.robots.profiles.gr3 import GR3_DMR_PROFILE
 from rimkit.robots.profiles.h1 import H1_DMR_PROFILE
 from rimkit.robots.profiles.h2 import H2_DMR_PROFILE
+from rimkit.robots.profiles.igrisc import IGRISC_DMR_PROFILE
 from rimkit.robots.profiles.k1 import K1_DMR_PROFILE
 from rimkit.robots.profiles.n1 import N1_DMR_PROFILE
 from rimkit.robots.profiles.oli import OLI_DMR_PROFILE
@@ -44,6 +45,7 @@ DMR_PROFILES = MappingProxyType(
         "gr3": GR3_DMR_PROFILE,
         "a3": A3_DMR_PROFILE,
         "t2": T2_DMR_PROFILE,
+        "igrisc": IGRISC_DMR_PROFILE,
     }
 )
 
@@ -86,8 +88,8 @@ def get_dmr_profile(
     if robot.robot_id != "k1":
         return replace(
             profile,
-            left_ankle_orientation_joi_key="lsole",
-            right_ankle_orientation_joi_key="rsole",
+            left_ankle_orientation_joi_key=profile.left_ankle_orientation_joi_key or "lsole",
+            right_ankle_orientation_joi_key=profile.right_ankle_orientation_joi_key or "rsole",
             ankle_contact_flatten_strength=1.0,
             ankle_contact_flatten_smooth_time=0.06,
         )

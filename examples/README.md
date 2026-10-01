@@ -75,7 +75,11 @@ The results are written below `runs/stand_walk_run_stop/g1` and
 `runs/rapid_stepping/g1`, respectively. Final previews use the provider-aware 1280×720
 CoRe camera and top-left LF/RF contact panel.
 
-Generate all eight bundled Kimodo motions for all eleven supported robots and
+IGRIS-C is available with `--robot igrisc`. Its exported articulated columns
+follow the original XML's 31-joint order. See [robot models](../docs/robots.md)
+for the fixed base landmark and physical ankle rotation targets.
+
+Generate all eight bundled Kimodo motions for all seventeen supported robots and
 optionally publish the portable final MP4/PNG gallery directory:
 
 ```bash
@@ -85,7 +89,7 @@ python scripts/generate_example_outputs.py \
   --gallery-dir docs/media/final
 ```
 
-Run the equivalent 8 × 11 GEM-X matrix at the bundled motions' 30 Hz source
+Run the equivalent 8 × 17 GEM-X matrix at the bundled motions' 30 Hz source
 rate with:
 
 ```bash

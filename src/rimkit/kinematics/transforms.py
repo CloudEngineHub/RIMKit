@@ -21,13 +21,15 @@ def transform(
 def position(value: ArrayLike) -> NDArray[np.float64]:
     """Return a copy of the translation component of a transform."""
 
-    return np.asarray(value, dtype=np.float64).reshape(4, 4)[:3, 3].copy()
+    result: NDArray[np.float64] = np.asarray(value, dtype=np.float64).reshape(4, 4)[:3, 3].copy()
+    return result
 
 
 def rotation(value: ArrayLike) -> NDArray[np.float64]:
     """Return a copy of the rotation component of a transform."""
 
-    return np.asarray(value, dtype=np.float64).reshape(4, 4)[:3, :3].copy()
+    result: NDArray[np.float64] = np.asarray(value, dtype=np.float64).reshape(4, 4)[:3, :3].copy()
+    return result
 
 
 def unit_vector(

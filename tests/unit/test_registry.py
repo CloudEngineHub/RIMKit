@@ -28,6 +28,7 @@ class RobotRegistryTest(unittest.TestCase):
                 "asimov1",
                 "x2",
                 "a3",
+                "igrisc",
             ],
         )
 
